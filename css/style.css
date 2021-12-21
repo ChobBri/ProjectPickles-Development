@@ -7,9 +7,9 @@
     padding: 0;
 }
 
-.content-wrap {
+.main-content {
     /* background:red; */
-    max-width: 900px;
+    max-width: 1400px;
     width: 85%;
     margin: 0 auto; 
     padding:60px 0;
@@ -23,4 +23,20 @@ h1 {
 body {
     background-image: url('../images/background.jpg');
     background-size: cover;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-item {
+    background-color: blue;
+    border: 10px;
+    border-color: black;
+    flex: 1 1 auto;
+}
+
+#main-borders {
+    align-items: flex-start;
 }

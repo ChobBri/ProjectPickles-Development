@@ -18,6 +18,7 @@
 h1 {
     background-color: #E7F2F8;
     padding: 30px;
+    margin-bottom: 30px;
 }
 
 body {
@@ -31,12 +32,20 @@ body {
 }
 
 .flex-item {
-    background-color: blue;
+    background-color: #D1D1D1;
+    padding: 15px;
     border: 10px;
     border-color: black;
     flex: 1 1 auto;
 }
 
-#main-borders {
+#borders {
     align-items: flex-start;
+    
+}
+
+#main-border {
+    margin: 0 30px;
+    flex-grow: 3;
+    
 }

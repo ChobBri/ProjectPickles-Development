@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+
+        <div class="main-content">
+            <h1>Refactoring collision code to use polymorphism and combining pathfinding with steering behaviour</h1>
+            <div id="borders" class="flex-container">
+                <aside id="aside-border" class="flex-item" >
+                    <a href="index.html">Main Page</a>
+                </aside>
+                <main style="max-width: 1000px"id="main-border" class="flex-item" >
+                    <video style="display: inline-block" width="640" height="460" controls>
+                        <source src="videos/astar.mkv" type="video/mp4">
+                      Your browser does not support the video tag.
+                      </video>
+                    <h2 style="text-decoration: underline">Introduction</h2>
+                    <p>Hello again</p>
+                    <p>
+                    Lately, I got really into c++ so most of my time has been devoted to that instead of making progress on this project.
+                    However, I managed to find some time to implement something I had in mind which is combining pathfinding with steering behaviour.
+                    That being said, I felt that it was necessary to refactor my code before moving onwards.
+                    </p>
+                    <h2 style="text-decoration: underline">Slight refactoring to enable polymophism</h2>
+                    <p>
+                        I didn't really think I was going to do much with this project, so most of my code has been very "non-modular".
+                        Basically, I all crammed all my code in one function because I didn't really know if I was going to come back to it.
+                        Turns out doing that was a bad idea (what a surprise) because I did have to come back to it.
+                    </p>
+                    <p>
+                        It was the case that all my collision checking was being done in the player character.
+                        Now I have it so that each tile class has something like <code>ResolveInX</code> / <code>Y</code>.
+                        This makes it so that I don't have to type check each tile and enable polymorphism.
+                        Still doesn't really fix all the problems I have in terms of code design but I think
+                        it's a step in the right direction.
+                    </p>
+                    <h2>Steering Behaviour</h2>
+                    <p>
+                        Steering behaviour is a concept I learned about around a few months ago.
+                        It's just a simple vector addition towards some target position to create a smooth movement towards the target. You can do 
+                        a lot with steering behaviour, but I just happened to only implement the seek functionality.
+                    </p>
+
+                    <figure>
+                        <img style="display: inline-block; width: 520px; height: 360px" src="images/steering.png">
+                        <figcaption><i>I made this on the train so excuse the crudeness of the drawing. Probably would have made no difference if I was at home though.</i>
+                        </figcaption>
+                    </figure>
+                    <p>If you think about it in terms of physics, the net force acting on the object is just the steering force that is pointing towards the target.</p>
+
+                    <h2>A* pathfinding algorithm</h2>
+                    <p>
+                        About a year back, I had some sort of incomplete idea for a tile-based turn-based game. One thing I was curious about was how the AI would 
+                        navigate around the board. I did a search on pathfinding and it lead me to the A* algorithm so that's what I ended up reading about.
+                    </p>
+                    <p>
+                        Basically how A* works is that, there is a graph made up of nodes and edges in which the player must traverse. In the case for my "game",
+                        the tilemap is the graph and each tile is the node. Each node keeps track of three values: f, g, and the h value. All three values are 0 by default.
+                    </p>
+                    <p>
+                        The g value represents the total distance taken from the starting node to get to the current node.
+                        <br>
+                        The h value is the estimate distance to the end node from the current node. This can be calculated using the euclidian distance, manhattan distance or whatever.
+                        As long as it doesn't underestimate, it's most likely fine.
+                        <br>
+                        Finally, the f value is simply the g value plus the h value.
+                        <br>
+                        Note that the g value is the distance we are certain of, the h value is the estimate, and the f value is the combined distance of the certain distance and the estimated distance.
+                    </p>
+                    <p>
+                        A* uses a concept of a openset to keep track of the nodes to test.<br>
+                        At the start, the starting node would check all of its neighbours to see if they qualify to be put in the openset. They only qualify if there hasn't
+                        been a previous visit to that node with a smaller g value. That is, if the player has previously found a way to get to that node in a shorter distance,
+                        then we don't bother checking it.
+                    </p>
+                    <p>
+                        When it comes to checking the openset, we use the node with the smallest f value in that set. That is, we use the node that has the potential to be the shortest path.
+                        Then we use that node to check its neighbour and see if they qualify to be in the openset. You can see that this process repeats until we find the end node.
+                    </p>
+                    <figure>
+                        <img style="display: inline-block; " src="images/astar.png">
+                        <figcaption><i>This diagram doesn't do it justice, but hopefully you get the general idea. Also I know the picture is too big. fight me.</i>
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        Once we finally reach the end, we have to backtrack to the start while putting each node in some sort of container and return that.
+                        We can achieve this by making each node refer to some parent node.
+                    </p>
+
+                    <h2> Combining pathfinding and steering behaviour</h2>
+                    <p>I combine pathfinding and steering behaviour to a hunter class and the result is nothing special but it looks cool.
+                        It's fun just watching it find it's way towards the player.
+                    </p>
+                    <p>There's definitely a performance cost though. Definitely one thing I should do is thread the A* calculation process, but I don't know how to do that as of now
+                        so it's something I'll have to go back to. One thing I am doing is that it only performs the A* algorithm only if the hunter is facing away from the
+                        player. That is if the dot product of the vector pointing to the player and the velocity vector is less than or equal to 0, it must be the case that
+                        the hunter is facing away from the player. It's not a good solution but at least it ends up finding its way to the player.
+                    </p>
+                    <figure>
+                        <img style="display: inline-block; " src="images/dot.png">
+                        <figcaption><i></i>
+                        </figcaption>
+                    </figure>
+
+                    
+                </main>
+                <div id="empty-border" class="flex-item">
+                    
+                </div>
+            </div>
+            
+        </div>
+
+    </body>
+</html>

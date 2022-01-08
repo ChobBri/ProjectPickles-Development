@@ -32,9 +32,21 @@ h1 {
     margin-bottom: 30px;
 }
 
+h2{
+    text-decoration: underline;
+}
+
+p{
+    margin-bottom: 15px;
+}
+
 body {
     background-image: url('../images/background.jpg');
     background-size: cover;
+}
+
+figure {
+    margin: 15px 0;   
 }
 
 .flex-container {
@@ -52,7 +64,6 @@ body {
 
 #borders {
     align-items: flex-start;
-    
 }
 
 #main-border {

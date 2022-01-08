@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+
+        <div class="main-content">
+            <h1>Project Pickles!!</h1>
+            <div id="borders" class="flex-container">
+                <aside id="aside-border" class="flex-item" >
+                    <a href="index.html">Main Page</a>
+                </aside>
+                <main style="max-width: 1000px"id="main-border" class="flex-item" >
+                    <h2 style="text-decoration: underline">Introduction</h2>
+                    <p>Hello!</p>
+                    <br>
+                    <p>ProjectPickles is a game project I'm working on using the <a target="_blank" href="https://www.monogame.net/"> Monogame framework</a>.</p>
+                    <br>
+                    <p>I don't actually plan on releasing this anywhere and I don't expect it to turn into some sort of well thought out and polished game.
+                        My goal for this project is to be able to implement random features regardless of whether it fits the game or not. Some features I have in mind are:
+                        tiled-based collision (static, slopes, moving-tiles, etc.), pathfinding, finite state machines, random physics stuff such as forward/inverse kinematics, menu system (main menu, debug, inventory), etc.
+                        I will most likely be needing a guide such as a YouTube video or a blog post to implement some features; however, I am more likely going to implement it blind if I happen to have
+                        a general idea of how to implement it (collision is an example of this). For this reason, some features will probably end up buggy.
+                    </p>
+                    <br>
+                    <p>Here is a video of what I have so far. Currently, I can load levels, easily modify levels, and easily add new types of tiles.
+                        I also have a working block and slope tiled collision although incredibly buggy.
+                    </p>
+
+                    <video style="display: inline-block" width="320" height="230" controls>
+                        <source src="videos/Post1.mkv" type="video/mp4">
+                      Your browser does not support the video tag.
+                      </video>
+                    <br>
+                    <h2 style="text-decoration: underline">Initial Motivation</h2>
+                    <p>I initially started this project about 2 months ago. My main motivation stemmed from the limitations I faced when using the Fisica physics engine
+                        (for a high-school game project assignment).
+                        <br>
+                        <ol>
+                            <li>
+                                <h3>Unpredictability</h3>
+                                <p>Physics engines are cool, but they can be very unreliable
+                                at times, especially when the physics in the game deviates from the physics simulated by the engine.</p>
+                            </li>
+                            <li>
+                                <h3>Limited Number of Objects</h3>
+                                <p>The physics engine could only support up to 2048 objects for some reason.</p>
+                            </li>
+                            <li>
+                                <h3>Flexible Level Editing</h3>
+                                <p>This is actually unrelated to Fisica but I wanted to find a way to create and load levels more easily and allow the level creation to be more flexible.
+                                    Initially, I would load levels from reading an image file and based on the colours, I would load certain tiles in.
+                                    <br>
+                                    <img style="display: inline-block" src="images/colormap.png"> <img style="display: inline-block" src="images/colormaploaded.png">
+                                    This method is okay but once you start using up more than 8 colours, it can get annoying to keep track of them. As well, it's very easy
+                                    to use the wrong colour since the hex value of the colours need to be exact. It's also limited by the fact that you can only have one colour value per pixel
+                                    (ex. You can't place a non-solid object and the player in the same location without hardcoding it in the game).
+                                </p> 
+
+                            </li>
+                        </ol>
+
+                    </p>
+                    <br>
+                    <p>
+                        My brilliant solution to these limitations is to just implement my own wack collision system lol. As for the level editor,
+                        I've decided to try out the <a target="_blank" href="https://www.mapeditor.org/">Tiled</a> tilemap editor.
+                    </p>
+
+
+                    <br>
+                    <h2 style="text-decoration: underline">Collision System</h2>
+                    <p>
+                        Currently, my code is a mess and I've basically implemented the hackiest solution to everything. The main problem I had with the tile-based box collision
+                        was that the box would get stuck on the tiniest pixels. This would usually happen when moving left or up since collision checks are done from the top-left
+                        most tile. 
+                    </p>
+
+                        <figure>
+                            <img style="display: inline-block; width: 256px; height: 256px" src="images/collision.gif">
+                            <figcaption><i>When moving left, gravity pulls the box down and the resulting velocity vector is one that goes down and to the left.
+                                The box collides with two tiles but the left one is checked first due to row-major ordering. The box is pushed to the right, then the other tile pushes
+                                the box upwards. This is why the box seems to get stuck in place.</i>
+                            </figcaption>
+                          </figure>
+                          <br>
+
+                         <p>
+                             My solution was to sort the colliding tiles based on how close they were to the box. Unfortunately due to float imprecisions, I would still get stuck on small pixels.
+                             I tried to debug this but I couldn't find a fix for it. Instead, I decided to keep track of the rows and columns that had a tile collision
+                             and skip future collision checks for that row and column.
+                        </p>
+
+                        <figure>
+                            <img style="display: inline-block; width: 256px; height: 256px" src="images/collisionsorted.gif">
+                            <figcaption><i>Unlike the last example, the right tile is tested first after sorting. The box is pushed up in this case. Normally,
+                                I would then have a problem with the left tile pushing the box to the right due to faulty collision, but since I disable collision for that row,
+                                the box stays in the same position instead.
+                            </i>
+                            </figcaption>
+                          </figure>
+
+                          <br>
+                          <p>Definitely not the best solution, but I'm trying to move away from collisions so this will do for now.</p>
+
+                          <h2 style="text-decoration: underline">Sloped Tiles</h2>
+
+                          <p>
+                              One thing about most notable grid-based indie games such as Celeste, Hollow Knight, Spelunky, etc. is that they don't have sloped tiles.
+                              This is mostly because they suck and introduce lots of edge cases to consider. First of all,
+                                sloped tiles behave differently in that they collide with the bottom center of the box rather than the edges of the box.
+                          </p>
+
+                          <figure>
+                            <img style="display: inline-block; width: 512px; height: 256px" src="images/slope.jpg">
+                            <figcaption><i>The box on the left looks off since it's floating in the air. This is why the collision point is moved to the bottom center of the box.
+                            </i>
+                            </figcaption>
+                          </figure>
+                          <br>
+                          <p>For this reason, the box could be clipping inside a block tile and therefore could prevent the box from moving left or right.
+                               Luckily this is not an issue for me since I ignore collisions in the same row or column.
+                            </p>
+                            <br>
+                            <p>
+                                As for implementing slope collision, I use two values <code>startingSlopeY</code> and <code>endingSlopeY</code> which represents
+                                how high the starting and end points are from the bottom of the tile. So if you have an upwards sloped tile, you might have <code>startingSlopeY = 0</code>
+                                and <code>endingSlopeY = 16</code>. Then I have a directional vector at the starting point of the slope that points to the end point of the slope.
+                                Using the directional vector, I can use linear interpolation to find how much I should "kick" up the box.
+                            </p>
+                            <figure>
+                                <img style="display: inline-block; width: 256px; height: 256px" src="images/slopeimp.jpg">
+                                <figcaption><i>The box's y-position changes based on how much the box has traveled in the x-axis.
+                                </i>
+                                </figcaption>
+                              </figure>
+
+
+                            
+
+
+
+                    
+
+                </main>
+                <div id="empty-border" class="flex-item">
+                    3
+                </div>
+            </div>
+            
+        </div>
+
+    </body>
+</html>
